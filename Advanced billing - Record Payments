@@ -1,3 +1,7 @@
+%pip install maxio-advanced-billing-sdk
+
+import advancedbilling
+
 from advancedbilling.models.create_invoice_payment_request import CreateInvoicePaymentRequest
 from advancedbilling.models.create_invoice_payment import CreateInvoicePayment
 from advancedbilling.models.invoice_payment_method_type import InvoicePaymentMethodType
