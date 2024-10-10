@@ -1,0 +1,49 @@
+import pandas as pd
+
+import openpyxl
+
+import advancedbilling
+
+from advancedbilling.models.send_invoice_request import SendInvoiceRequest  
+from advancedbilling.exceptions.error_list_response_exception import ErrorListResponseException
+from advancedbilling.exceptions.api_exception import APIException
+from advancedbilling.configuration import Environment
+from advancedbilling.advanced_billing_client import AdvancedBillingClient
+from advancedbilling.http.auth.basic_auth import BasicAuthCredentials
+
+from advancedbilling.exceptions.api_exception import APIException
+from advancedbilling.configuration import Environment
+from advancedbilling.advanced_billing_client import AdvancedBillingClient
+
+client = AdvancedBillingClient(
+    basic_auth_credentials=BasicAuthCredentials(
+        username='aPMYAJNCagi2eFtUzqP9U8wvOQQuvyOKc8BiVmrUKY',
+        password='x'
+    ),
+    environment=Environment.PRODUCTION,
+    subdomain='maximizer-cad-mx',
+    domain='chargify.com'
+)
+
+invoices_controller = client.invoices
+
+df = pd.read_excel('/Users/Ananyasharda/Downloads/Bulk invoice send.xlsx')
+
+for index, row in df.iterrows():
+    uid = row['UID']
+    recipient_email = row['Customer Email']
+    cc_email = row['CC Email'] if pd.notna(row['CC Email']) else None
+    
+    body = SendInvoiceRequest(
+        recipient_emails=[recipient_email],
+        cc_recipient_emails=[cc_email] if cc_email else [],
+        bcc_recipient_emails=['ananyasharda@maximizer.com']
+    )
+
+    try:
+        invoices_controller.send_invoice(uid, body=body)
+        print(f"Invoice sent to {recipient_email} (UID: {uid})")
+    except (ErrorListResponseException, APIException) as e:
+        print(f"Failed to send invoice to {recipient_email} (UID: {uid}): {e}")
+
+print("Bulk invoice sending completed.")
